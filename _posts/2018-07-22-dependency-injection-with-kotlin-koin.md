@@ -1,5 +1,5 @@
 ---
-title: Kotlin 의 안드로이드 의존성 주입 라이브러리 Koin을 소개합니다.
+title: Kotlin 안드로이드 의존성 주입 라이브러리 Koin을 소개합니다.
 layout: single
 category: post
 comments: true
@@ -171,6 +171,9 @@ val dialogModule: Module = module {
 // Request dependency from namespace
 val cancelableDialog: AlertDialog.Builder by inject("cancelableDialogBuilder")
 ```
+
+실제 프로젝트에서는 이렇게 사용하지는 않겠지만 이해를 돕기 위해 AlertDialog 사용해봤습니다.
+
 
 여기까지 모듈을 정의하고 정의된 모듈을 주입하는것까지 해보았습니다. 이 외에 ViewModel 주입을 더 편하게 해주는 [koin-android-viewmodel](https://beta.insert-koin.io/docs/1.0/documentation/koin-android/index.html#_architecture_components_with_koin_viewmodel) 라이브러리도 있고 Scoping을 편하게 해주는 [koin-android-scope](https://beta.insert-koin.io/docs/1.0/documentation/koin-android/index.html#_scope_features_for_android) 라이브러리도 제공을 하고 있습니다.
 Dagger와 비교했을때 실제 학습비용은 매우 낮지만 장단점이 있습니다. 판단은 각자의 몫이지만 좀더 가벼운 프로젝트를 시작할때 한번쯤 사용해보는것도 좋을 것 같습니다.
