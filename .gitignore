@@ -1,3 +1,5 @@
+/vendor
+
 ### Jekyll ###
 _site
 .sass-cache
