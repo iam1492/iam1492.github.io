@@ -3,8 +3,7 @@ title: Android MVVM 패턴, ViewModel, LiveData, Databinding을 이용해 간단
 layout: single
 category: post
 comments: true
-classes: wide
-toc: true
+<!-- classes: wide -->
 tags:
   - mvvm
   - viewmodel
@@ -23,47 +22,45 @@ MVVM은 Model - View - ViewModel의 줄임말로 최근 안드로이드 아키�
 3. [SOLID principle](https://en.wikipedia.org/wiki/SOLID) 을 지향 
 4. 앱이 구조적으로 약한 결합의 컴포넌트로 나눠짐
 
-대체적으로 위와같은 장점에 대해서 이야기를 하지만 결국 가장 큰 목적은 유지보수가 쉽고 테스트가 용이한 코드를 만드는 과정이라고 생각합니다. 
-구글에서는 [Android Architecture Component](https://developer.android.com/topic/libraries/architecture/)(이하 AAC) 통해 MVVM 구조로 개발을 쉽게 할 수 있게 다양한 라이브러리를 제공하고 있습니다.
-참고로, MVVM이라고 말하면 디자인 패턴중 하나이기 때문에 반드시 AAC 라이브러리를 사용할 필요는 없습니다. AAC 라이브러리에는 ViewModel 클래스를 명시적으로 제공하는데 개인적으로 AAC에서 제공하고 있는 ViewModel은 lifecycle aware viewmodel을 만드는것을 도와주는 라이브러리라고 생각하고 있습니다.
-안드로이드 개발을 하다보면 Activity나 Fragment의 복잡한 lifecycle 때문에 데이터 상태관리의 어려움을 많이 느끼게 되지만 AAC ViewModel을 사용할 경우 이러한 lifecycle의 영향을 받지 않고 ViewModel이 가진 데이터를 안전하게 보관할 수 있습니다. 중요한 부분이기 때문에 뒤에 다시 설명하겠습니다.
-이제부터 설명하는 ViewModel은 AAC에서 제공하는 ViewModel을 기준으로 설명한다고 생각해도 무방합니다. 
-
-## ViewModel
-1. View와 Model 사이의 Mediator 역할. 즉, Model에서 제공받은 데이터를 뷰에게 제공하는 역할을 하게 됩니다.
-2. View 또는 액티비티 Context에 대한 레퍼런스를 가지면 안됩니다. View는 ViewModel의 reference를 가지지만 ViewModel은 View에 대한 정보가 전혀 없어야 합니다. 만약 ViewModel이 View를 가지고 있다면 lifecycle 에 따른 메모리릭이 발생할 수 있는데 그 이유는 ViewModel의 경우 destroy 외의 라이프사이클에서는 메모리에서 해제되지 않기 때문입니다. 
-3. ViewModel은 Model로 부터 제공받은 데이터를 View에서 필요한 데이터로 가공해서 View가 가져갈 수 있도록 준비합니다. 즉, View에 대한 정보가 없기 때문에 직접 전달하지는 못하고 "데이터 변경"에 대한 이벤트만 보내게 됩니다.
-4. ViewModel과 View는 MVP패턴과는 다르게 Many to One의 관계를 가질 수 있습니다. 즉, 여러개의 Fragment가 하나의 ViewModel을 가질 수 있습니다.
-5. ViewModel은 View에 영향을 끼칠 수 있는 Model의 상태 관리도 담당합니다. (예: 로딩중 상태, 네트워크 에러 상태, 오프라인, visibility 등)
-
-처음 MVVM을 공부하신다면 위의 내용은 아직 이해가 어려운 부분이 많겠지만 부족한 부분은 계속 반복적으로 설명을 해보도록 하겠습니다.
+대체적으로 위와같은 장점에 대해서 이야기를 하지만 결국 가장 큰 목적은 유지보수가 쉽고 테스트가 용이한 코드를 만드는 것입니다.
 
 ![mvvm](/assets/images/mvvm.png)
 
-액티비티가 백그라운드에서 죽었다 살아나면 뷰모델도 함께 죽음. 이 경우에만 onSaveInstanceState 와 같은 방법으로 데이터를 복구 해야함.
-여러개의 fragment 에서 ViewModel 공유가능 - ViewModelProviders.of(activity).get….
-View model은 view에서 필요한 데이터만 노출
-Abstraction of the View exposing public properties and commands
-State of the data in the model and maintains state of the view.
-Value converter(raw data -> presentation friendly properties)
-Responsibility
-        * Exposing state(progress, offline, empty, error..)
-        * Exposing data
-        * Handling visibility
-        * Handling extras & argument(bundle)
-        * Input validation
-        * Execute UI command (ex. Click function)
-        * Execute data calls from model(ex. Patch data from network, db)
-    * Pure java (?)
-    * No activity context. Application context는 쓴다(?) 
+MVVM의 기본 구조를 그림으로 표현한 것입니다. View는 ViewModel에게 클릭이벤트, 필요한 데이터 요청등을 명시적으로 하고 ViewModel이 nofity할때까지 기다리게 됩니다. 그와 동일하게 ViewModel은 Model을 통해 데이터를 요청하고 기다리게 됩니다. 각각의 컴포넌트간 레퍼런스를 갖지않고 단방향(View -> ViewModel -> Model)의 디펜던시만을 갖게 됩니다.
 
-1. Model(DataModel)
-2. View
-    * Activity, Fragment, CustomView, AdapterView
-    * View업데이트를 위해 ViewModel과 바인딩 - DataBinding 이라고 부름.
-    * Responsibility
-        * Working with android View, Dialog, Toast, Snackbar, Menu
-        * Handling permission, event(from event bus), start activity.
+## Android Architecture Component
+
+구글에서 제공하는 [Android Architecture Component](https://developer.android.com/topic/libraries/architecture/)(이하 AAC)의 몇몇 라이브러리를 이용하면 MVVM 구조로 앱 개발을 더 쉽게 할 수 있습니다. MVVM 패턴 이라고 말하면 디자인 패턴중 하나이기 때문에 반드시 AAC 라이브러리를 사용할 필요는 없습니다. 하지만 AAC 라이브러리에는 ViewModel 추상클래스를 명시적으로 제공하며 이 추상클래스를 통해 lifecycle aware viewmodel를 만들 수 있게 도와줍니다.
+안드로이드 개발을 하다보면 Activity나 Fragment의 복잡한 lifecycle 때문에 데이터 상태관리의 어려움을 느끼게 되지만 AAC ViewModel을 사용할 경우 lifecycle의 영향을 받지 않고 ViewModel이 가진 데이터를 안전하게 관리할 수 있습니다. 중요한 부분이기 때문에 뒤에 구현 코드를 통해 다시 설명하겠습니다.
+이제부터 설명하는 ViewModel은 AAC에서 제공하는 ViewModel의 기능적인 부분을 포함해서 설명하겠습니다.
+
+## ViewModel
+1. **View와 Model 사이의 Mediator 역할을 합니다.** 즉, Model에서 제공받은 데이터를 UI에서 필요한 정보로 가공한뒤 View가 가져갈 수 있게 데이터 변경에 대한 "이벤트"를 보내게 됩니다.
+2. **ViewModel과 View는 MVP패턴과는 다르게 Many to One의 관계를 가질 수 있습니다.** 즉, 여러개의 Fragment가 하나의 ViewModel을 가질 수 있습니다.
+3. **ViewModel은 View에 영향을 끼칠 수 있는 Model의 상태 관리도 담당합니다.** (예: 로딩중 상태, 네트워크 에러 상태, 오프라인, visibility 등)
+4. **View 또는 액티비티 Context에 대한 레퍼런스를 가지면 안됩니다.** View는 ViewModel의 reference를 가지지만 ViewModel은 View에 대한 정보가 전혀 없어야 합니다. (ViewModel이 View의 레퍼런스를 가진다면 lifecycle 에 따른 메모리릭이 발생할 수 있는데 그 이유는 ViewModel이 destroy 외의 라이프사이클에서는 메모리에서 해제되지 않기 때문입니다.)
+5. 앱이 백그라운드에서 죽는 경우에는 뷰모델도 함께 사라지기 때문에 이 경우에 한해서는 onSaveInstanceState 를 통해 복구할 데이터를 저장해야합니다.
+
+## View
+1. Activity, Fragment, CustomView, Dialog, Toast, Snackbar, Menu 등의 UI 컴포넌트를 의미합니다.
+2. View는 UI 업데이트를 위해 ViewModel과 바인딩이 하게 됩니다. 다른 표현으로는 View가 ViewModel에 구독을 하게되고 ViewModel의 상태가 변경되면 그 이벤트를 받아 UI를 갱신합니다.
+3. 추가로 퍼미션관련된 처리, startActivity 등의 네비게이션 역할도 하게됩니다.
+
+## Model
+1. DataModel이라고도 하며 Network, DB, SharedPreference등 다양한 데이터소스로 부터 필요한 데이터를 준비합니다.
+
+## LiveData
+
+
+## Toy App - shorten Url 생성앱
+
+이제 위의 개념이 어느정도 감이 왔다면 코드를 보면서 실제 어떻게 구현이 되는지 알아보겠습니다. 샘플로 만들 앱은 사용자가 특정 URL을 입력하면 naver api를 이용해 단축 URL을 만들어주는 단순한 앱입니다. 먼저 샘플앱에서 사용할 라이브러리를 간단히 소개해볼게요
+1. Koin - [Dependency Injection](https://ko.wikipedia.org/)을 위해 사용합니다. 
+2. Retrofit - Naver api 를 호출하기 위한 REST Api 라이브러리 입니다.
+3. RxJava - Model에서 데이터를 notify할때 사용합니다. (Model이 Observable이라면 ViewModel은 Subscriber)
+4. LiveData - ViewModel에서 View에 데이터를 notify할때 사용합니다. View는 데이터를 제공받기위해 ViewModel에 observe를 해야합니다.
+5. Databinding - ViewModel과 xml layout간의 데이터를 바인딩하기 위해 사용합니다.
+
 
 
 안드로이드 앱을 개발할때 [Dagger](https://google.github.io/dagger/) 와 같은 [Dependency Injection](https://ko.wikipedia.org/wiki/%EC%9D%98%EC%A1%B4%EC%84%B1_%EC%A3%BC%EC%9E%85)(이하 DI)을 사용하는 것을 종종 볼 수 있습니다. 각 컴포넌트간의 의존성을 외부 컨테이너에서 관리하는 방식을 통해 코드 재사용성을 높이고 Unit Test도 편하게 할 수 있게 되는 장점을 가지고 있습니다. 그런데 최근에는 코틀린이 안드로이드 앱 개발 공식 언어가 되면서 코틀린의 다양한 언어적 장점을 이용한 DI 라이브러리가 생겨났고 그 중 하나인 [Koin](https://beta.insert-koin.io/) 라이브러리에 알아보려고 합니다. 
