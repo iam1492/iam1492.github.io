@@ -19,7 +19,7 @@ locale                   : "kramdown"
 title                    : "한옥 사는 개발자의 개발이야기"
 title_separator          : "-"
 name                     : "Kai"
-description              : "당근마켓에서 안드로이드 개발을 하고 있습니다. 아내와 함께 예쁜 한옥 한채를 짓고 살려는 계획을 실행중입니다."
+description              : "Android Architecture, Kotlin 등의 개발 관련 포스팅 블로그"
 url                      : "https://iam1492.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : iam1492/iam1492.github.io # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
@@ -209,6 +209,7 @@ plugins:
   - jekyll-gist
   - jekyll-feed
   - jemoji
+  - jekyll-seo-tag
 
 # mimic GitHub Pages with --safe
 whitelist:

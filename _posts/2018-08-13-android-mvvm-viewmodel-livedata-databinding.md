@@ -1,5 +1,5 @@
 ---
-title: Android MVVM 패턴, ViewModel, LiveData, Databinding을 이용해 간단한 Toy App 만들어보기
+title: Android MVVM 패턴, ViewModel, LiveData, Databinding을 이용해 간단한 Toy App 만들기
 layout: single
 category: post
 comments: true
