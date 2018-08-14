@@ -3,6 +3,7 @@ title: Android MVVM 패턴, ViewModel, LiveData, Databinding을 이용해 간단
 layout: single
 category: post
 comments: true
+author_profile: true
 tags:
   - mvvm
   - viewmodel
@@ -11,11 +12,11 @@ tags:
   - databinding
 ---
 
-MVVM은 Model - View - ViewModel의 줄임말로 최근 안드로이드 아키텍쳐에 가장 많은 사랑을 받으며 구글의 전폭적인 지원을 받기도 하고 있습니다. [당근마켓](https://www.daangn.com/)의 경우에는 몇년전에 개발을 시작했던거라 당시에 트렌드였던 MVP로 구조로 개발이 되어있으나 점점 서비스 규모가 커지면서 혼자 개발함에도 불구하고 관리의 어려움이 많았고 테스트 코드에 대한 니즈가 생기면서 구조적인 변화를 고민하게 되었습니다. 그래서 최근에 Clean Architecture, MVVM 등을 찾아보면서 그 중 MVVM 관련해서 정리를 해보려고 합니다. MVVM은 말그대로 아키텍쳐 패턴입니다. MVVM이 어떻게 탄생했는지에 대해서는 [위키피디아](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel)를 참고해보세요 :) 개념설명과 함께 Naver open api를 이용한 단축 url 생성 앱도 함께 만들어보겠습니다.
+MVVM은 Model - View - ViewModel의 줄임말로 최근 안드로이드 아키텍쳐에 가장 많은 사랑을 받으며 구글의 전폭적인 지원을 받기도 하고 있습니다. 
+
+[당근마켓](https://www.daangn.com/)의 경우에는 몇년전에 개발을 시작했던거라 당시에 트렌드였던 MVP로 구조로 개발이 되어있으나 점점 서비스 규모가 커지면서 혼자 개발함에도 불구하고 관리의 어려움이 많았고 테스트 코드에 대한 니즈가 생기면서 구조적인 변화를 고민하게 되었습니다. 그래서 최근에 Clean Architecture, MVVM 등을 찾아보면서 그 중 MVVM 관련해서 정리를 해보려고 합니다. MVVM은 말그대로 아키텍쳐 패턴입니다. MVVM이 어떻게 탄생했는지에 대해서는 [위키피디아](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel)를 참고해보세요 :) 개념설명과 함께 Naver open api를 이용한 단축 url 생성 앱도 함께 만들어보겠습니다.
 
 > 이 포스팅에서의 View는 안드로이드의 UI컴포넌트 기본단위 View 가 아닌 MVVM 에서의 View를 이야기 합니다.
-
-![shortenurlapp](/assets/images/shorten_url_app.gif){: .align-center}
 
 ## MVVM 구조의 장점
 
@@ -62,10 +63,12 @@ LiveData는 아래와 같은 특징을 갖습니다.
     - lifecycle에 따라 알아서 observing을 해제하여 메모리릭이 안생김
     - 백그라운드에서 View를 건드려 앱이 죽는 문제가 사라짐.
 4. **View와 ViewModel의 LiveData간의 디펜던시가 단방향으로 약한 결합을 가지게 됩니다.**
-5. 만약 LiveData 대신 Rxjava를 쓴다면? 당연히 개발자가 lifecycle에 맞춰 dispose를 해줘야할 책임이 생기게 됩니다.
+5. **만약 LiveData 대신 Rxjava를 쓴다면?** 당연히 개발자가 lifecycle에 맞춰 dispose를 해줘야할 책임이 생기게 됩니다.
 
 
-# Toy App - shorten Url 생성앱
+# Toy App 구현해보기 - 단축 Url 생성앱
+
+![shortenurlapp](/assets/images/shorten_url_app.gif){: .align-center}
 
 이제 위의 개념이 어느정도 감이 왔다면 코드를 보면서 실제 어떻게 구현이 되는지 알아보겠습니다. 샘플로 만들 앱은 사용자가 특정 URL을 입력하면 naver api를 이용해 단축 URL을 만들어주는 단순한 앱입니다. 먼저 샘플앱에서 사용할 라이브러리를 간단히 소개해볼게요
 1. **Koin** - [Dependency Injection](https://ko.wikipedia.org/)을 위해 사용합니다. 
@@ -228,10 +231,18 @@ class ShortenUrlActivity : BaseActivity<ActivityShortenUrlBinding>() {
 }
 ```
 
-ShortenUrlActivity 에서는 ViewModelProviders를 통해 ShortenUrlViewModel 클래스를 생성합니다. 이때 XXXViewModel이 디폴트 생성자만 사용한다면 따로 [ShortenUrlViewModelFactory](https://github.com/iam1492/mvvmsample/blob/master/app/src/main/java/com/daangn/www/mvvmsample/viewmodel/ShortenUrlViewModelFactory.kt) 와 같은 팩토리 클래스를 만들필요가 없습니다. 하지만 이 예제의 경우 ShortenUrlViewModel이 생성자로 Repository를 받고 있기 때문에 따로 ViewModelFactory를 만들어 ViewModel을 생성해야합니다. 
-View(ShortenUrlActivity)에서는 생성한 ViewModel의 레퍼런스를 이용해 클릭이벤트(clickConvert) 혹은 error state 등을 observe 하고 있는걸 볼 수 있습니다. 그런데 그럼 shortenUrl을 요청한 값을 업데이트 하는 부분은 어디에 있을까요?
-코드 맨 아래 부분을 보시면 viewDataBinding.shortenUrlViewModel = shortenUrlViewModel 에서 databinding을 사용해 xml layout에 ViewModel을 바인딩 해주고 있습니다. 그리고 viewDataBinding.setLifecycleOwner(this) 를 이용해 lifecycleOwner(예제에서는 ShortenUrlActivity)만 설정을 해주면 ViewModel에서 postValue를 해주는 순간 알아서 UI가 업데이트 되기 때문에 따로 observe를 할 필요가 없습니다.
-바인딩 시켜주는 부분은 아래 xml layout 을 확인해보세요.
+ShortenUrlActivity 에서는 ViewModelProviders를 통해 ShortenUrlViewModel 클래스를 생성합니다. 이때 ShortenUrlViewModel이 디폴트 생성자만 사용한다면 따로 [ShortenUrlViewModelFactory](https://github.com/iam1492/mvvmsample/blob/master/app/src/main/java/com/daangn/www/mvvmsample/viewmodel/ShortenUrlViewModelFactory.kt) 와 같은 팩토리 클래스를 만들필요가 없습니다. 하지만 이 예제의 경우 ShortenUrlViewModel이 생성자로 Repository를 받고 있기 때문에 따로 ViewModelFactory를 만들어 ViewModel을 생성해야합니다.
+
+View(ShortenUrlActivity)에서는 생성한 ViewModel의 레퍼런스를 이용해 클릭이벤트(clickConvert) 혹은 error state 등을 observe 하고 있는걸 볼 수 있습니다. 그런데 getShortenUrl() 요청의 결과값은 왜 observe하고 있지 않을까요?
+
+```kotlin
+viewDataBinding.shortenUrlViewModel = shortenUrlViewModel
+viewDataBinding.setLifecycleOwner(this)
+```
+
+코드 맨 아래 부분을 보면 Android Databinding을 통해 xml layout에 ViewModel을 바인딩 해주고 있습니다. 그리고 setLifecycleOwner() 함수를 이용해 lifecycleOwner(예제에서는 ShortenUrlActivity)만 설정을 해주면 ViewModel에서 postValue를 해주는 순간 UI가 업데이트 되기 때문에 따로 observe를 할 필요가 없습니다.
+
+아래는 ShortenUrlActivity 의 xml 레이아웃 파일입니다.
 
 > activity_shorten_url.xml
 
@@ -260,6 +271,7 @@ View(ShortenUrlActivity)에서는 생성한 ViewModel의 레퍼런스를 이용�
 
 layout xml 에서는 실제 shortenUrlViewModel 객체를 이용해 이벤트를 호출하거나 ViewModel에 정의된 LiveData를 바인딩하고 있습니다.
 
+LiveData 나 DataBinding등 각각의 컴포넌트들도 더 많은 기능들이 있지만 이번 포스팅은 이정도로 마칠까 합니다. 아직은 클릭 이벤트 처리라던가 각기 다른 도메인 데이터를 매핑한다던가 하는 부분에 있어서 과도기적인 부분이 분명 있는것 같지만 구글의 아키텍쳐에 대한 열망이 식지 않는한 계속해서 발전하지 않을까 하는 생각이 듭니다. :blush:
 
 Toy App 프로젝트는 github에 [MVVMSample](https://github.com/iam1492/mvvmsample)에 올려두었습니다.
 

@@ -92,9 +92,14 @@
   }
 
   a:not(.btn) {
+    text-decoration: none;
+    background-image: linear-gradient(to bottom,rgba(247,103,7,.68) 50%,rgba(247,103,7,0) 50%);
+    background-repeat: repeat-x;
+    background-size: 2px .1em;
+    background-position: 0 1em;
     &:hover {
-      text-decoration: underline;
-
+      //text-decoration: underline;
+      color: $link-color-hover;
       img {
         box-shadow: 0 0 10px rgba(#000, 0.25);
       }

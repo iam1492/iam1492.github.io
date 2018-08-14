@@ -129,7 +129,6 @@ a {
   &:focus {
     @extend %tab-focus;
   }
-
   &:hover,
   &:active {
     color: $link-color-hover;

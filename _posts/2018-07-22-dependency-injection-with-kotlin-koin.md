@@ -3,6 +3,7 @@ title: Kotlin 안드로이드 의존성 주입 라이브러리 Koin을 소개합
 layout: single
 category: post
 comments: true
+author_profile: true
 tags:
   - kotlin
   - koin
@@ -10,7 +11,9 @@ tags:
   - di
 ---
 
-안드로이드 앱을 개발할때 [Dagger](https://google.github.io/dagger/) 와 같은 [Dependency Injection](https://ko.wikipedia.org/wiki/%EC%9D%98%EC%A1%B4%EC%84%B1_%EC%A3%BC%EC%9E%85)(이하 DI)을 사용하는 것을 종종 볼 수 있습니다. 각 컴포넌트간의 의존성을 외부 컨테이너에서 관리하는 방식을 통해 코드 재사용성을 높이고 Unit Test도 편하게 할 수 있게 되는 장점을 가지고 있습니다. 그런데 최근에는 코틀린이 안드로이드 앱 개발 공식 언어가 되면서 코틀린의 다양한 언어적 장점을 이용한 DI 라이브러리가 생겨났고 그 중 하나인 [Koin](https://beta.insert-koin.io/) 라이브러리에 알아보려고 합니다. 
+안드로이드 앱을 개발할때 [Dagger](https://google.github.io/dagger/) 와 같은 [Dependency Injection](https://ko.wikipedia.org/wiki/%EC%9D%98%EC%A1%B4%EC%84%B1_%EC%A3%BC%EC%9E%85)(이하 DI)을 사용하는 것을 종종 볼 수 있습니다. 각 컴포넌트간의 의존성을 외부 컨테이너에서 관리하는 방식을 통해 코드 재사용성을 높이고 Unit Test도 편하게 할 수 있게 되는 장점을 가지고 있습니다.
+
+그런데 최근에는 코틀린이 안드로이드 앱 개발 공식 언어가 되면서 코틀린의 다양한 언어적 장점을 이용한 DI 라이브러리가 생겨났고 그 중 하나인 [Koin](https://beta.insert-koin.io/) 라이브러리에 알아보려고 합니다. 
 	
 > 포스팅은 최근 릴리즈한 Koin 1.0.0 beta 버전을 사용했습니다.
 
