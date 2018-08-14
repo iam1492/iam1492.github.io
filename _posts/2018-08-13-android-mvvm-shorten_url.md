@@ -3,7 +3,6 @@ title: Android MVVM 패턴, ViewModel, LiveData, Databinding을 이용해 간단
 layout: single
 category: post
 comments: true
-<!-- classes: wide -->
 tags:
   - mvvm
   - viewmodel
@@ -12,11 +11,13 @@ tags:
   - databinding
 ---
 
-MVVM은 Model - View - ViewModel의 줄임말로 최근 안드로이드 아키텍쳐에 가장 많은 사랑을 받으며 구글의 전폭적인 지원을 받기도 하고 있습니다. 당근마켓의 경우에는 몇년전에 개발을 시작했던거라 당시에 트렌드였던 MVP로 구조로 개발이 되어있으나 점점 서비스 규모가 커지면서 혼자 개발함에도 불구하고 관리의 어려움이 많았고 테스트 코드에 대한 니즈가 생기면서 구조적인 변화를 고민하게 되었습니다. 그래서 최근에 Clean Architecture, MVVM 등을 찾아보면서 그 중 MVVM 관련해서 정리를 해보려고 합니다. MVVM은 말그대로 아키텍쳐 패턴입니다. MVVM이 어떻게 탄생했는지에 대해서는 [위키피디아](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel)를 참고해보세요 :)
+# Model - View - ViewModel 
 
-## MVVM 패턴의 장점
+MVVM은 Model - View - ViewModel의 줄임말로 최근 안드로이드 아키텍쳐에 가장 많은 사랑을 받으며 구글의 전폭적인 지원을 받기도 하고 있습니다. [당근마켓](https://www.daangn.com/)의 경우에는 몇년전에 개발을 시작했던거라 당시에 트렌드였던 MVP로 구조로 개발이 되어있으나 점점 서비스 규모가 커지면서 혼자 개발함에도 불구하고 관리의 어려움이 많았고 테스트 코드에 대한 니즈가 생기면서 구조적인 변화를 고민하게 되었습니다. 그래서 최근에 Clean Architecture, MVVM 등을 찾아보면서 그 중 MVVM 관련해서 정리를 해보려고 합니다. MVVM은 말그대로 아키텍쳐 패턴입니다. MVVM이 어떻게 탄생했는지에 대해서는 [위키피디아](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel)를 참고해보세요 :)
 
-개인적으로 MVVM 패턴의 장점을 나열해본다면
+## MVVM 구조의 장점
+
+MVVM 패턴을 지켜 개발된 앱은 아래와 같은 특징을 갖게 됩니다.
 1. [Separation of concern](https://en.wikipedia.org/wiki/Separation_of_concerns) - 하나의 소프트웨어를 최대한 기능적으로 작은 단위로 나눔 
 2. 테스트가 쉬워지고 큰프로젝트도 상대적으로 관리하기 좋다.
 3. [SOLID principle](https://en.wikipedia.org/wiki/SOLID) 을 지향 
@@ -50,9 +51,17 @@ MVVM의 기본 구조를 그림으로 표현한 것입니다. View는 ViewModel�
 1. DataModel이라고도 하며 Network, DB, SharedPreference등 다양한 데이터소스로 부터 필요한 데이터를 준비합니다.
 
 ## LiveData
+예제 코드를 알아보기 전에 마지막으로 AAC에 포함된 [LiveData](https://developer.android.com/topic/libraries/architecture/livedata)에 대해 간단히 살펴보겠습니다. LiveData는 "observable data holder class"로 특정 데이터를 옵져버블하게 만들게 됩니다. RxJava의 Observable과의 가장 큰 차이점은 LiveData의 경우 View lifecycle에 따라 필요한 일을 알아서 해주기 때문에 개발자가 따로 신경을 쓰지않아도 됩니다. 아래와 같은 특징을 갖습니다.
+1. Lifecycle aware simple observer - 여기서 simple인 이유는 단순히 하나의 데이터에 observe를 할 수 있게만 해주기 때문입니다.
+2. Activity, Fragment is LifecycleOwner - LiveData와 바인딩을 하기 위해서는 LifecycleOwner interface 구현체여야 합니다. 
+3. Lifecycle 을 알기 때문에 View가 destroy되면 알아서 Observe상태를 해제합니다. (rxjava의 dispose를 lifecycle에 따라 자동으로 수행) 이런 특징은 다음의 장점이 있습니다.
+    - lifecycle에 따라 알아서 observing을 해제하여 메모리릭이 안생긴다.
+    - 백그라운드에서 View를 건드려 앱이 죽는 문제가 사라짐.
+4. View와 ViewModel의 LiveData간의 디펜던시가 단방향으로 약한 결합을 가지게 됩니다.
+5. 만약 Rxjava를 쓴다면 개발자가 lifecycle에 맞춰 dispose를 해줘야 합니다.
 
 
-## Toy App - shorten Url 생성앱
+# Toy App - shorten Url 생성앱
 
 이제 위의 개념이 어느정도 감이 왔다면 코드를 보면서 실제 어떻게 구현이 되는지 알아보겠습니다. 샘플로 만들 앱은 사용자가 특정 URL을 입력하면 naver api를 이용해 단축 URL을 만들어주는 단순한 앱입니다. 먼저 샘플앱에서 사용할 라이브러리를 간단히 소개해볼게요
 1. Koin - [Dependency Injection](https://ko.wikipedia.org/)을 위해 사용합니다. 
@@ -60,6 +69,84 @@ MVVM의 기본 구조를 그림으로 표현한 것입니다. View는 ViewModel�
 3. RxJava - Model에서 데이터를 notify할때 사용합니다. (Model이 Observable이라면 ViewModel은 Subscriber)
 4. LiveData - ViewModel에서 View에 데이터를 notify할때 사용합니다. View는 데이터를 제공받기위해 ViewModel에 observe를 해야합니다.
 5. Databinding - ViewModel과 xml layout간의 데이터를 바인딩하기 위해 사용합니다.
+
+이 포스팅에서는 Dependency Injection에 구현방법에 대해서는 생략하겠습니다. Koin 라이브러리의 사용법이 궁금하다면 이전 포스팅인 [Kotlin 안드로이드 의존성 주입 라이브러리 Koin을 소개합니다.]({% post_url 2018-07-22-dependency-injection-with-kotlin-koin %}) 를 참고해주세요.
+
+## Package 구조
+
+<img src="/assets/images/packages.png" width="460" class="align-center">
+
+패키지 구조는 이해를 돕기 위해 의도적으로 view, viewmodel, model로 나누었습니다. 
+각각의 구현부분은 최대한 단순하게 만들려고 노력했습니다.
+
+## Model
+모델은 네트워크를 통해 `naver shorten url` API를 요청해 데이터를 가져오는 역할을 합니다.
+
+```kotlin
+import io.reactivex.Single
+
+interface Repository {
+    fun getShortenUrl(url: String): Single<ShortenUrl>
+}
+```
+
+```kotlin
+import com.daangn.www.mvvmsample.api.Api
+import io.reactivex.Single
+
+class NetworkRepositoryImpl(val api: Api): Repository {
+    override fun getShortenUrl(url: String): Single<ShortenUrl> {
+        return api.shorturl(url)
+            .map { shortenUrlResponse ->
+                ShortenUrl(
+                    url = shortenUrlResponse.result.url,
+                    hash = shortenUrlResponse.result.hash,
+                    orgUrl = shortenUrlResponse.result.orgUrl)
+            }
+    }
+}
+```
+
+실제 코드 구현은 매우 간단하게 되어있습니다. 여기서 ShortenUrl은 단축url 데이터를 담을 kotlin data class 입니다.
+Api response spec상 몇가지 메타 데이터를 함께 내려주고 있어서 rxjava의 map을 이용해 ShortenUrl로 매핑해주는 구현이 들어가있습니다.
+코드를 보면 Model의 경우 데이터를 RxJava Single을 이용해 Observable하게 만들고 있습니다. 이는 ViewModel에서 이 데이터를 observe 가능하게 만들어 위에서 설명했던 단방향의 디펜던시를 갖기 위함입니다.
+
+## ViewModel
+
+
+```kotlin
+import androidx.lifecycle.ViewModel
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+
+open class DisposableViewModel: ViewModel() {
+
+    private val compositeDisposable = CompositeDisposable()
+
+    fun addDisposable(disposable: Disposable) {
+        compositeDisposable.add(disposable)
+    }
+
+    override fun onCleared() {
+        compositeDisposable.clear()
+        super.onCleared()
+    }
+}
+```
+
+DisposableViewModel은 AAC의 ViewModel의 구현체이며 ShortenUrlViewModel의 상위 클래스입니다. RxJava의 경우 lifecycle을 알지 못하기 때문에 ViewModel의 onCleared()가 호출되면(Activity 혹은 Fragment의 onDestroy 시점) 명시적으로 dispose해주어야 합니다.
+
+
+### DisposableViewModel
+위에서 설명했듯이 
+
+
+
+
+
+
+
+
 
 
 
