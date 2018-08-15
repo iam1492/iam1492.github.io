@@ -1,5 +1,6 @@
 ---
 title: Kotlin 안드로이드 의존성 주입 라이브러리 Koin을 소개합니다.
+description: Kotlin Koin 라이브러리 소개 및 구현방법
 layout: single
 category: post
 comments: true
