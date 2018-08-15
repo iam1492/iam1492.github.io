@@ -160,7 +160,7 @@ class ShortenUrlViewModel(private val repository: Repository) : DisposableViewMo
     val clickCopyToClipboard: LiveData<String> get() = _clickCopyToClipboard
     ...
 
-    fun getEmailValidator(errorMessage: String): METValidator {
+    fun getUrlValidator(errorMessage: String): METValidator {
         return RegexpValidator(errorMessage, Patterns.WEB_URL.pattern())
     }
 
