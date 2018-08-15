@@ -14,7 +14,7 @@ tags:
 
 MVVM은 Model - View - ViewModel의 줄임말로 최근 안드로이드 아키텍쳐에 가장 많은 사랑을 받으며 구글의 전폭적인 지원을 받기도 하고 있습니다. 
 
-[당근마켓](https://www.daangn.com/)의 경우에는 2015년에 처음 개발을 시작했고 당시에 트렌드였던 MVP로 구조로 개발이 되어 있습니다. 점점 서비스 규모가 커지면서 혼자 개발함에도 불구하고 관리의 어려움이 많았고 테스트 코드에 대한 니즈가 생기면서 구조적인 변화를 고민하게 되었습니다. 그래서 최근에 Clean Architecture, MVVM 등 Architecture에 관심이 생겼고 그 중 MVVM 관련해서 정리를 해보려고 합니다. MVVM은 말그대로 아키텍쳐 패턴입니다. MVVM이 어떻게 탄생했는지에 대해서는 [위키피디아](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel)를 참고해보세요 :) 개념설명과 함께 Naver open api를 이용한 단축 url 생성 앱도 함께 만들어보겠습니다.
+[당근마켓](https://www.daangn.com/)의 경우에는 2015년에 처음 개발을 시작했고 당시에 트렌드였던 MVP로 구조로 개발이 되어 있습니다. 점점 서비스 규모가 커지면서 혼자 개발함에도 불구하고 관리의 어려움이 많았고 테스트 코드에 대한 니즈가 생기면서 구조적인 변화를 고민하게 되었습니다. 그래서 최근에 Clean Architecture, MVVM 등 Architecture에 관심이 생겼고 그 중 MVVM 관련해서 정리를 해보려고 합니다. MVVM은 말그대로 아키텍쳐 패턴입니다. MVVM이 어떻게 탄생했는지에 대해서는 [위키피디아](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel)를 참고해보세요 :) 개념설명과 함께 Naver open api를 이용한 [단축 url 생성 Sample App](https://github.com/iam1492/mvvmsample)도 함께 만들어보겠습니다.
 
 > 이 포스팅에서의 View는 안드로이드의 UI컴포넌트 기본단위 View 가 아닌 MVVM 에서의 View를 이야기 합니다.
 
