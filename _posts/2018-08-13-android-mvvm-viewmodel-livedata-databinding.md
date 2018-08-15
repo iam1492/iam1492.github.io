@@ -71,11 +71,11 @@ LiveData는 아래와 같은 특징을 갖습니다.
 ![shortenurlapp](/assets/images/shorten_url_app.gif){: .align-center}
 
 이제 위의 개념이 어느정도 감이 왔다면 코드를 보면서 실제 어떻게 구현이 되는지 알아보겠습니다. 샘플로 만들 앱은 사용자가 특정 URL을 입력하면 naver api를 이용해 단축 URL을 만들어주는 단순한 앱입니다. 먼저 샘플앱에서 사용할 라이브러리를 간단히 소개해볼게요
-1. **Koin** - [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection)을 위해 사용합니다. 
-2. **Retrofit** - Naver api 를 호출하기 위한 REST Api 라이브러리 입니다.
-3. **RxJava** - Model에서 데이터를 노출하고 이벤트를 발생시키기 위해 사용합니다. Model에 observe 하는 주체는 ViewModel이 되겠죠.
-4. **LiveData** - ViewModel에서 View에 데이터를 노출하고 이벤트를 발생시키기 위해 사용합니다. 여기선 View가 ViewModel에 observe를 하는 주체가 됩니다.
-5. **Databinding** - ViewModel과 xml layout간의 데이터를 바인딩하기 위해 사용합니다.
+1. **[Koin](https://github.com/InsertKoinIO/koin)** - [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection)을 위해 사용합니다. 
+2. **[Retrofit](https://github.com/square/retrofit)** - Naver api 를 호출하기 위한 REST Api 라이브러리 입니다.
+3. **[RxJava](https://github.com/ReactiveX/RxJava)** - Model에서 데이터를 노출하고 이벤트를 발생시키기 위해 사용합니다. Model에 observe 하는 주체는 ViewModel이 되겠죠.
+4. **[LiveData](https://developer.android.com/topic/libraries/architecture/livedata)** - ViewModel에서 View에 데이터를 노출하고 이벤트를 발생시키기 위해 사용합니다. 여기선 View가 ViewModel에 observe를 하는 주체가 됩니다.
+5. **[Databinding](https://developer.android.com/topic/libraries/data-binding/?hl=ko)** - ViewModel과 xml layout간의 데이터를 바인딩하기 위해 사용합니다.
 
 이 포스팅에서는 Dependency Injection에 구현방법에 대해서는 생략하겠습니다. Koin 라이브러리의 사용법이 궁금하다면 이전 포스팅인 [Kotlin 안드로이드 의존성 주입 라이브러리 Koin을 소개합니다.]({% post_url 2018-07-22-dependency-injection-with-kotlin-koin %}) 를 참고해주세요.
 
