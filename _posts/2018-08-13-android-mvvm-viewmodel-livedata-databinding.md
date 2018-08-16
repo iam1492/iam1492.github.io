@@ -11,6 +11,10 @@ tags:
   - livedata
   - android
   - databinding
+header:
+  overlay_image: /assets/images/cover_img.jpg
+  overlay_filter: 0.3 
+  caption: "Photo credit: [**Pixabay**](https://pixabay.com/)"
 ---
 
 MVVM은 Model - View - ViewModel의 줄임말로 최근 안드로이드 아키텍쳐에 가장 많은 사랑을 받으며 구글의 전폭적인 지원을 받기도 하고 있습니다. 
