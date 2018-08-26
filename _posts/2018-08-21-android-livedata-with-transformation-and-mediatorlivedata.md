@@ -17,7 +17,7 @@ header:
   caption: "Photo credit: [**Pixabay**](https://pixabay.com/)"
 ---
 
-이전 [포스팅]({% post_url 2018-08-13-android-mvvm-viewmodel-livedata-databinding %})에서는 MVVM 구조와 이를 도와주는 몇가지 컴포넌트에 대해서 정리를 했었는데 그 중에서 개인적으로 앞으로 활용도가 점점 많아 질 것으로 생각되는 LiveData에 대해서 조금더 자세히 알아보겠습니다. 그리고 간단한 [Sample Project](https://github.com/iam1492/LiveDataSample) 도 함께 만들어보겠습니다.
+이전 [포스팅]({% post_url 2018-08-13-android-mvvm-viewmodel-livedata-databinding %})에서는 MVVM 구조와 이를 도와주는 몇가지 컴포넌트에 대해서 정리를 했었는데 그 중에서 개인적으로 앞으로 활용도가 점점 많아 질 것으로 생각되는 LiveData에 대해서 조금더 자세히 알아보겠습니다. 블로그에 나오는 예제는 [LiveDataSample](https://github.com/iam1492/LiveDataSample) Github 리포지토리에 올려두었습니다.
 
 # LiveData
 
@@ -29,7 +29,7 @@ LiveData는 Activity, Fragment 와 같은 View와 View에게 보여질 데이터
 LiveData는 ViewModel 내에서 주로 사용하게 됩니다. ViewModel안에서 다른 컴포넌트들과 연결된 상태로 다양한 이벤트를 받아 뷰를 갱신하게 됩니다. LiveData를 사용하면 다음과 같은 장점을 갖게 됩니다.
 
 * Lifecycle을 알고 있어서 메모리릭이나 예기치 못한 crash를 방지할 수 있습니다.
-* Data 자체의 변화를 observe하고 있기 때문에 Data가 항상 최신성을 유지하게 됩니다.
+* Data 자체의 변화를 observe하고 있기 때문에 UI의 Data가 항상 최신성을 유지하게 됩니다.
 
 다만, LiveData 자체만으로는 RxJava처럼 강력한 스트림 기능이나 쓰레드 관리 기능이 없기 때문에 사용하는데 어느정도 제한적일 수 있습니다. 
 구글에서는 이를 어느정도 보완할 수 있도록 [Transformations class](https://developer.android.com/reference/android/arch/lifecycle/Transformations)를 제공하고 있는데 이 클래스는 **map**, **switchMap** 함수를 통해 LiveData를 변환하거나 결합할 수 있는 기능을 제공합니다. 이 두 함수에 대해서는 곧 자세히 설명해보겠습니다.
@@ -54,14 +54,14 @@ public static <X, Y> LiveData<Y> map(
             @NonNull final Function<X, Y> mapFunction)
 ```
 
-map 함수는 RxJava의 map과 비슷한 느낌입니다. 즉, LiveData에 특정 값이 세팅되어 트리거 되는 순간 전달된 Function() 함수를 통해 새로운 값을 가진 LiveData를 리턴합니다. map의 두번째 인자로 함수를 전달하는데 이 함수는 새로운 LiveData에 세팅될 value(Y 타입의 값) 자체를 리턴하게 됩니다. 코드로 이해하는게 가장 빠를 것 같습니다.
+map 함수는 RxJava의 map과 비슷한 느낌입니다. 즉, LiveData에 특정 값이 세팅되어 트리거 되는 순간 전달된 Function() 함수를 통해 새로운 값을 가진 LiveData를 리턴합니다. map의 두번째 인자로 Function() 함수를 전달하는데 이 함수는 새로운 LiveData에 세팅될 value(Y 타입의 값) 자체를 리턴하는 함수입니다. 코드로 이해하는게 가장 빠를 것 같습니다.
 
 > ViewModel
 
 ```kotlin
 private val _price = MutableLiveData<Int>()
 val formattedPrice: LiveData<String> = Transformations.map(_price) {
-    //새로운 Type의 값을 리턴. _price가 10000 이라면 "10,000" 이라는 String이 리턴
+    //Function: Int 값을 가격포맷의 String으로 변환
     DecimalFormat("#,###").format(it) 
 }
 
@@ -73,13 +73,12 @@ fun setPrice(price: Int) {
 > Activity
 
 ```kotlin
-viewModel.setPrice(value)
 viewModel.formattedPrice.observe(this, Observer {
 	viewBinding.priceResult.text = it
 })
 ```
 
-위의 예제는 **Transformations.map**을 이용해 숫자를 가격 포맷으로 변경해주고 있습니다. 현재 구현상으론 액티비티에서 setPrice를 하고 있지만 이런 과정없이 api call을 통해 서버로부터 price값을 Int 값으로 받아온다면 위처럼 _price.value를 채워주는 순간 formattedPrice LiveData 역시 업데이트가 됩니다. 그럼 액티비티는 언제든 포맷화된 가격으로 UI에 표시를 해줄 수 있겠죠. 
+위의 예제는 **Transformations.map**을 이용해 숫자를 가격 포맷으로 변경해주고 있습니다. 전달된 함수는 Function<Int, String> 타입이 되겠죠. 현재 구현상으론 액티비티에서 setPrice를 하고 있지만 이런 과정없이 api call을 통해 서버로부터 price값을 Int 값으로 받아온다면 위처럼 _price.value를 채워주는 순간 formattedPrice LiveData 역시 업데이트가 됩니다. 그럼 액티비티는 언제든 포맷화된 가격으로 UI에 표시를 해줄 수 있겠죠. 
 
 아래는 kotlin extension으로 map 함수를 직접 구현한것입니다. extension을 활용해 직접구현해서 사용하면 좀더 직관적으로 사용할 수 있습니다.
 
@@ -106,7 +105,7 @@ public static <X, Y> LiveData<Y> switchMap(
 ```
 
 switchMap 함수는 RxJava의 flatMap과 비슷한 느낌입니다. switchMap의 source로 등록된 LiveData에 값이 세팅되어 트리거가 일어나면 해당 값을 이용하여 다른 새로운 LiveData를 가져와 리턴합니다. 즉, map과의 차이점은 map은 값자체를 리턴하는 Function을 전달해야한다면 switchMap은 LiveData<Y> 를 리턴하는 Function을 전달해야합니다. 이러한 장점은 여러 LiveData를 겹합하는게 가능해집니다.
-예를들면, 어떤 사용자의 전화번호가 변경이 되어서 phoneNumber LiveData가 트리거 될때 userLiveData = Transformations.switchMap(phoneNumber) {..}  이렇게 선언 되어있다면 switchMap 내부에서 phoneNumber를 이용해 Room db를 쿼리해 LiveData<User> 를 받아올 수 있습니다. 
+예를들면, 어떤 사용자의 전화번호가 변경이 되어서 phoneNumber LiveData가 트리거 될때 userLiveData = Transformations.switchMap(phoneNumber) {..}  이렇게 선언 되어있다면 switchMap 내부에서 phoneNumber를 이용해 Room db를 쿼리해 LiveData<User> 를 받아올 수 있습니다. 코드로 표현해보겠습니다.
 
 ```kotlin
 private val phoneNumber = MutableLiveData<String>()
@@ -115,7 +114,7 @@ val user: LiveData<User> = Transformations.switchMap(phoneNumber) { phone ->
 }
 ```
 
-사용방법은 간단합니다. getUserByPhone은 실제 서비스에서는 아마 DB나 Network으로 부터 반환받은 값이 될 수 있을 것 같습니다.
+위 예제에서는 Function<String, LiveData<User>> 함수를 switchMap으로 인자로 넘기고 있습니다. getUserByPhone은 실제 서비스에서는 아마 DB나 Network으로 부터 반환받은 값이 될 수 있을 것 같습니다.
 
 ### Transformations 사용시 주의할 점
 
@@ -132,15 +131,17 @@ fun onGetNumber() {
 }
 ```
 
-위에서는 switchMap을 사용할때 특정 이벤트가 일어날때마다 Transformations.map을 반복 수행하게 되어있습니다. 이렇게 되면 randomNumber 는 다시 새로운 객체로 대체되는데 이 객체는 Activity에서 observe한 객체와는 다른 객체이기 때문에 Activity에서 이벤트를 받지 못하게 됩니다. 
+위에서는 switchMap을 사용할때 특정 이벤트가 일어날때마다 Transformations.map을 반복 수행하여 randomNumber를 새로 받아오도록 되어있습니다. 이렇게 되면 randomNumber는 다시 새로운 객체로 대체되는데 이 객체는 Activity에서 observe한 객체와는 다른 객체이기 때문에 Activity에서는 이벤트를 받지 못하게 됩니다. 
 
 ## MediatorLiveData
 
 ![mediator_live_data](/assets/images/mediator_live_data.png)
 
-MediatorLiveData는 클래스 이름에서 유추가 가능하듯 여러개의 LiveData를 Mediate(중재) 하는 역할을 합니다. 사실 실제 기능 자체는 단순한데 addSource() 함수와 removeSource() 함수를 통해 여러개의 LiveData를 하나의 MediatorLiveData의 source로 등록/해제가 가능합니다. 이렇게 등록을 하면 source로 등록된 LiveData의 값이 변경될때마다 onChanged 이벤트를 통해 변경된 값을 전달 받게 됩니다.
+MediatorLiveData는 클래스 이름에서 유추가 가능하듯 여러개의 LiveData를 Mediate(중재) 하는 역할을 합니다. 사실 기능 자체는 단순한데 addSource() 함수와 removeSource() 함수를 통해 여러개의 LiveData를 하나의 MediatorLiveData의 source로 등록/해제가 가능합니다. 이렇게 등록을 하면 source로 등록된 LiveData들의 값이 변경될때마다 onChanged 이벤트를 통해 변경된 값을 전달 받게 됩니다.
 
 ### MediatorLiveData 활용 - 더하기 예제
+
+![mediator_livedata](/assets/images/mediator_livedata.gif){: .align-center}
 
 이해를 돕기 위해 간단한 더하기 예제를 만들어보겠습니다. 숫자 2개를 입력하면 입력하는 동시에 더하기가 계산되어 결과를 보여주는 아주 간단한 예제 입니다. 먼저 X + Y = Z 이라고 하면 X과 Y에 해당하는 좌항 우항을 MutableLiveData<Int> 로 만들고 그 결과인 Z를 MediatorLiveData<Int> 로 만들어보겠습니다.
 
@@ -249,7 +250,8 @@ _errorMessage.addSource(loadSessionsResult) { result ->
 
 //성공처리
 _sessionTimeDataDay1.addSource(loadSessionsResult, {
-    //요청이 성공한 경우만 아래 실행 아니면 리턴 [코드 생략]
+    val userSessions = (it as? Result.Success)?.data?.userSessionsPerDay?.get(ConferenceDays[0])
+        ?: return@addSource
     _sessionTimeDataDay1.value = _sessionTimeDataDay1.value?.apply {
         list = userSessions
     } ?: SessionTimeData(list = userSessions)
@@ -258,7 +260,7 @@ _sessionTimeDataDay1.addSource(loadSessionsResult, {
 
 소스를 보다보면 위와 같은 코드들을 많이 볼 수 있습니다. 눈치로 대충 어떤일을 하는지 감이 오게되는데 loadSessionResult는 사용자 세션을 얻기 위한 요청의 LiveData 형태의 응답입니다. 이때 loadSessionResult 이벤트가 트리거 되면 두 MediatorLiveData인 _errorMessage와 _sessionTimeDataDay1 의 onChanged가 불리게 되고 위의 코드에서는 error일때와 success 일때를 서로 다르게 처리하고 있습니다. 이렇게 같은 요청이지만 요청한 결과 따라 View에는 필요한 이벤트만 전달이 가능하게 되고 코드 역시 잘 분리가 됩니다.
 
-LiveData 자체로만은 실제 프로덕션 앱에서 다양한 케이스를 구현하기 불편한 부분이 있지만 Transformations class 와 MediatorLiveData를 함께 잘 활용해 준다면 MVVM 구조를 유지하면서도 복잡한 케이스도 어느정도 어렵지 않게 잘 구현 할 수 있지 않을까 기대합니다. 
+여기까지 LiveData와 Transformations class 그리고 MediatorLiveData까지 기본 개념과 간단한 예제를 알아보았습니다. LiveData 자체로만은 실제 프로덕션 앱에서 다양한 케이스를 구현하기 불편한 부분이 있지만 Transformations class 와 MediatorLiveData를 함께 잘 활용해 준다면 MVVM 구조를 유지하면서도 복잡한 케이스도 어느정도 어렵지 않게 잘 구현 할 수 있지 않을까 기대합니다. 
 
 Sample 프로젝트는 github에 [LiveDataSample](https://github.com/iam1492/LiveDataSample)에 올려두었습니다.
  
